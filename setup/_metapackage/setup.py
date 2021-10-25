@@ -44,6 +44,8 @@ setuptools.setup(
         'odoo12-addon-account_invoice_tax_note',
         'odoo12-addon-account_invoice_tax_required',
         'odoo12-addon-account_invoice_tier_validation',
+        'odoo12-addon-account_invoice_tier_validation_approver',
+        'odoo12-addon-account_invoice_tier_validation_forward',
         'odoo12-addon-account_invoice_transmit_method',
         'odoo12-addon-account_invoice_transmit_method_substitution_rule',
         'odoo12-addon-account_invoice_triple_discount',
@@ -66,5 +68,6 @@ setuptools.setup(
     classifiers=[
         'Programming Language :: Python',
         'Framework :: Odoo',
+        'Framework :: Odoo :: 12.0',
     ]
 )

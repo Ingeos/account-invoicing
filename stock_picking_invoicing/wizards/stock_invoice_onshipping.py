@@ -206,7 +206,7 @@ class StockInvoiceOnshipping(models.TransientModel):
         default_journal = self.env["account.journal"].search(
             [
                 ("type", "=", journal_type),
-                ("company_id", "=", self.env.user.company_id.id),
+                ("company_id", "=", self.env.company.id),
             ],
             limit=1,
         )
@@ -227,11 +227,10 @@ class StockInvoiceOnshipping(models.TransientModel):
 
         inv_type = self._get_invoice_type()
         if inv_type in ["out_invoice", "out_refund"]:
-            action = self.env.ref("account.action_move_out_invoice_type")
+            xmlid = "account.action_move_out_invoice_type"
         else:
-            action = self.env.ref("account.action_move_in_invoice_type")
-
-        action_dict = action.read()[0]
+            xmlid = "account.action_move_in_invoice_type"
+        action_dict = self.env["ir.actions.act_window"]._for_xml_id(xmlid)
 
         if len(invoices) > 1:
             action_dict["domain"] = [("id", "in", invoices.ids)]
@@ -242,7 +241,9 @@ class StockInvoiceOnshipping(models.TransientModel):
                 form_view = [(self.env.ref("account.view_move_form").id, "form")]
             if "views" in action_dict:
                 action_dict["views"] = form_view + [
-                    (state, view) for state, view in action["views"] if view != "form"
+                    (state, view)
+                    for state, view in action_dict["views"]
+                    if view != "form"
                 ]
             else:
                 action_dict["views"] = form_view
@@ -358,7 +359,7 @@ class StockInvoiceOnshipping(models.TransientModel):
             payment_term = partner.property_payment_term_id.id
         else:
             payment_term = partner.property_supplier_payment_term_id.id
-        company = self.env.user.company_id
+        company = self.env.company
         currency = company.currency_id
         if partner:
             code = picking.picking_type_id.code
@@ -520,7 +521,7 @@ class StockInvoiceOnshipping(models.TransientModel):
         """
         pickings = self._load_pickings()
         company = pickings.mapped("company_id")
-        if company and company != self.env.user.company_id:
+        if company and company != self.env.company:
             raise UserError(_("All pickings are not related to your company!"))
         pick_list = self._group_pickings(pickings)
         invoices = self.env["account.move"].browse()
